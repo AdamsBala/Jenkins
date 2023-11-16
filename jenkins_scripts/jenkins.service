@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+
+name=$RC_SVCNAME
+command="/usr/bin/java"
+command_args="-jar /opt/jenkins.war"
+command_user="vagrant"
+command_background=true
+pidfile="/run/$RC_SVCNAME.pid"
+log_dir="/var/log/$RC_SVCNAME"
+output_log="$log_dir/jenkins.log"
+error_log="$log_dir/jenkins.log"
+
+depend() {
+    need net
+}
+start_pre() {
+    mkdir -p "$log_dir" -m 777
+}

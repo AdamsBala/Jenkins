@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'yaml'
+Vagrant.configure("2") do |config|
+
+    # Install additonal plug-in
+    config.vagrant.plugins = "vagrant-vbguest"
+    #--------------------
+    # jenkins
+    # IP: 192.168.55.71
+    # SSH: 17122
+    # Jenkins: 17180
+    #--------------------
+
+    config.vm.define "jenkins", primary: true do |box|
+        box.vm.box = "generic/alpine312"
+        box.vm.hostname = "jenkins"
+        box.vm.synced_folder ".", "/vagrant", disabled: true
+        box.vm.synced_folder "#{ENV['USERPROFILE']}/Downloads", "/vagrant/downloads", automount: true
+        box.vm.network "private_network", ip: "192.168.55.71", virtualbox__intnet: "qanetwork"
+        box.vm.network "forwarded_port", guest: 22, host: 17122, id: "ssh"
+        box.vm.network "forwarded_port", guest: 8080, host: 17180, host_ip: "127.0.0.1", id: "jenkins"
+
+        box.vm.provider "virtualbox" do |vb|
+            vb.name = "jenkins"
+            vb.cpus = 1
+            vb.memory = "1024"
+            vb.customize ["modifyvm", :id, "--groups", "/Alpine"]
+        end
+        box.vbguest.auto_update = false
+    end
+end
